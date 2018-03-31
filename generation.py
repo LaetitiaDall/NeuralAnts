@@ -25,7 +25,7 @@ class Generation(threading.Thread):
     def get_count(self):
         return self.generation
 
-    def have_ants_do_their_life(self, iterations=200):
+    def have_ants_do_their_life(self, iterations=TIME_UNIT_PER_GENERATION):
         for ant in self.ants:
             for i in range(RETRIES):
                 self.world.spawn_food()
@@ -50,23 +50,19 @@ class Generation(threading.Thread):
 
         self.ants = best_ants[:KEEP_BEST_ANTS_COUNT]
         self.best_ant = best_ants[0].clone()
+        self.fitnesses.append(self.best_ant.fitness)
 
         print("Best fitness: " + str(self.best_ant.fitness))
 
         # Reproduce
-        for i in range(CHILD_GENERATION_COUNT - 10):
+        for i in range(CHILD_GENERATION_COUNT):
             mother = best_ants[randint(0, len(best_ants) - 1)]
             father = best_ants[randint(0, len(best_ants) - 1)]
             self.ants.append(Ant.reproduce(mother, father))
 
-        for i in range(10):
-            mother = best_ants[i]
-            father = Ant(mother.world, RandomNetwork())
-            self.ants.append(Ant.reproduce(mother, father))
-
         # Keep random
         for i in range(KEEP_RANDOM_COUNT):
-            ant = old_ants[randint(0, len(old_ants) - 1)].clone()
+            ant = choice(old_ants).clone()
             self.ants.append(ant)
 
         # Create randoms
@@ -93,7 +89,6 @@ class Generation(threading.Thread):
         for gene in range(0, maxGenerations):
             self.have_ants_do_their_life(maxTimeUnit)
             self.select_best_ants_build_new_generation()
-            self.fitnesses.append(self.best_ant.fitness)
             self.best_ant.reset()
             self.world.spawn_food()
 

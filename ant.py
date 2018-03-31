@@ -8,6 +8,24 @@ from constants import *
 class Ant:
 
     def __init__(self, world, network=None):
+
+        self.commands = {
+            0: self.move_up,
+            1: self.move_down,
+            2: self.move_left,
+            3: self.move_right,
+            4: self.eat_food,
+        }
+        self.commandsName = {
+            0: 'up',
+            1: 'down',
+            2: 'left',
+            3: 'right',
+            4: 'eat-food',
+        }
+
+
+
         self.world = world
         self._x = 0
         self._y = 0
@@ -24,24 +42,12 @@ class Ant:
         # store the amount of good decisions
         self.good_decisions_taken = 0
 
+        # store the amount of bad decisions
+        self.bad_decisions_taken = 0
+
         # keep track of direction for image display
         self.hor_direction = "right"
         self.ver_direction = "none"
-
-        self.commands = {
-            0: self.move_up,
-            1: self.move_down,
-            2: self.move_left,
-            3: self.move_right,
-            4: self.eat_food,
-        }
-        self.commandsName = {
-            0: 'up',
-            1: 'down',
-            2: 'left',
-            3: 'right',
-            4: 'eat-food',
-        }
 
         self.debug = False
 
@@ -78,7 +84,7 @@ class Ant:
     def fitness(self):
         self.distance_to_food = self.world.distance_to_food(self)
         # return (self.foodEaten * 10) - self.distance_to_food
-        return self.good_decisions_taken - self.time_unit
+        return self.good_decisions_taken #- self.bad_decisions_taken*2
 
     def random_position(self):
         self._x = int(self.world.width / 2)
@@ -89,14 +95,18 @@ class Ant:
         self.amount_of_food_eaten = 0
         self.distance_to_food = sys.maxsize
         self.good_decisions_taken = 0
+        self.bad_decisions_taken = 0
         self.time_unit = 0
         self.didnt_move = 0
 
     def clone(self):
         clone = Ant(self.world)
+        clone.amount_of_food_eaten =  self.amount_of_food_eaten
         clone.distance_to_food = self.distance_to_food
         clone.good_decisions_taken = self.good_decisions_taken
-        clone.amount_of_food_eaten = self.amount_of_food_eaten
+        clone.bad_decisions_taken = self.bad_decisions_taken
+        clone.time_unit = self.time_unit
+        clone.didnt_move = self.didnt_move
         clone.brain = self.brain.clone()
         return clone
 
@@ -109,7 +119,9 @@ class Ant:
         new_distance = self.world.distance_to_food(self)
 
         if (new_distance < old_distance) and not self.can_eat_food():
-            self.good_decisions_taken += 1
+            self.good_decisions_taken += 2
+        else:
+            self.good_decisions_taken -= 2
 
     def move_up(self):
         self.ver_direction = "up"
@@ -134,7 +146,10 @@ class Ant:
         if self.can_eat_food():
             self.amount_of_food_eaten += 1
             self.world.food_has_been_eaten()
-            self.good_decisions_taken += 1
+            self.good_decisions_taken += 10
+        else:
+            self.good_decisions_taken +=-1
+
 
     def can_move_to(self, x, y):
         return True
@@ -152,7 +167,7 @@ class Ant:
         self.time_unit += 1
 
     def is_done(self):
-        return self.time_unit > TIME_UNIT_PER_GENERATION
+        return self.time_unit > TIME_UNIT_PER_GENERATION or self.didnt_move > 10
 
     @staticmethod
     def reproduce(mother, father):

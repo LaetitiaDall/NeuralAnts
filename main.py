@@ -58,9 +58,8 @@ last_hash_code = 0
 while True:
 
     # display the best ant for the last generation util it doesn't move or its fitness is really bad
-    if not ant or ant.is_done() or (ant.fitness < -20) or (ant.didnt_move > 10):
-        if ant:
-            print ("Reset-ant", ant.is_done(), ant.fitness, ant.didnt_move)
+    if not ant or ant.is_done():
+
         ant = generation.get_last_generation_best_ant()
 
         if not ant: continue
