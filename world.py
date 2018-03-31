@@ -8,16 +8,16 @@ class World:
         self.width = width
         self.height = height
         self.food = [width - 1, height / 2]
-        self.spawnFood()
+        self.spawn_food()
 
-    def distanceToFood(self, ant):
+    def distance_to_food(self, ant):
         return math.sqrt((ant.x - self.food[0]) ** 2 + (ant.y - self.food[1]) ** 2)
 
-    def spawnFood(self):
+    def spawn_food(self):
         # self.food = [randint(0, self.width - 1), randint(0, self.height - 1)]
         # self.food = [choice([2, self.width - 2]), choice([2, self.height - 2])]
         self.food = [ self.width - 2, self.height - 2]
 
-    def foodHasBeenEaten(self):
+    def food_has_been_eaten(self):
         print("Food was eaten at : ", self.food)
-        self.spawnFood()
+        self.spawn_food()

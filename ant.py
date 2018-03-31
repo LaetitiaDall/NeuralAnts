@@ -13,27 +13,27 @@ class Ant:
         self._y = 0
 
         # store how many times it hasn't moved
-        self.notMoved = 0
+        self.didnt_move = 0
 
         # store how many time it eat food
-        self.foodEaten = 0
+        self.amount_of_food_eaten = 0
 
         # store current distance to food
-        self.distanceToFood = sys.maxsize
+        self.distance_to_food = sys.maxsize
 
         # store the amount of good decisions
-        self.goodDecisions = 0
+        self.good_decisions_taken = 0
 
         # keep track of direction for image display
-        self.horDirection = "right"
-        self.verDirection = "none"
+        self.hor_direction = "right"
+        self.ver_direction = "none"
 
         self.commands = {
-            0: self.moveUp,
-            1: self.moveDown,
-            2: self.moveLeft,
-            3: self.moveRight,
-            4: self.eatFood,
+            0: self.move_up,
+            1: self.move_down,
+            2: self.move_left,
+            3: self.move_right,
+            4: self.eat_food,
         }
         self.commandsName = {
             0: 'up',
@@ -46,16 +46,16 @@ class Ant:
         self.debug = False
 
         # the last command the ant did
-        self.lastCommand = "None"
+        self.last_command = "None"
 
         # define a starting position
-        self.randomPosition()
+        self.random_position()
 
         # its brain
         self.brain = Brain(network)
 
         # time units of live
-        self.timeUnit = 0
+        self.time_unit = 0
 
     @property
     def x(self):
@@ -76,97 +76,83 @@ class Ant:
 
     @property
     def fitness(self):
-        """I'm the 'x' property."""
-        fit = 0
-        self.distanceToFood = self.world.distanceToFood(self)
-        # return (self.foodEaten * 10) - self.distanceToFood
-        return self.goodDecisions - self.timeUnit
+        self.distance_to_food = self.world.distance_to_food(self)
+        # return (self.foodEaten * 10) - self.distance_to_food
+        return self.good_decisions_taken - self.time_unit
 
-    def randomPosition(self):
-        if self.debug:
-            print ("randompos")
-        #self._x = randint(0, self.world.width - 1)
-        #self._y = randint(0, self.world.height - 1)
-
+    def random_position(self):
         self._x = int(self.world.width / 2)
         self._y = int(self.world.height / 2)
 
     def reset(self):
-        self.randomPosition()
-        self.foodEaten = 0
-        self.distanceToFood = sys.maxsize
-        self.goodDecisions = 0
-        self.timeUnit = 0
-        self.notMoved = 0
+        self.random_position()
+        self.amount_of_food_eaten = 0
+        self.distance_to_food = sys.maxsize
+        self.good_decisions_taken = 0
+        self.time_unit = 0
+        self.didnt_move = 0
 
     def clone(self):
         clone = Ant(self.world)
-        clone.distanceToFood = self.distanceToFood
-        clone.goodDecisions = self.goodDecisions
-        clone.foodEaten = self.foodEaten
+        clone.distance_to_food = self.distance_to_food
+        clone.good_decisions_taken = self.good_decisions_taken
+        clone.amount_of_food_eaten = self.amount_of_food_eaten
         clone.brain = self.brain.clone()
         return clone
 
     def move(self, stepX, stepY):
-        self.notMoved = 0
+        self.didnt_move = 0
 
-        oldDistance = self.world.distanceToFood(self)
+        old_distance = self.world.distance_to_food(self)
         self.x = self.x + stepX
         self.y = self.y + stepY
-        newDistance = self.world.distanceToFood(self)
+        new_distance = self.world.distance_to_food(self)
 
-        if (newDistance < oldDistance) and not self.canEatFood():
-            self.goodDecisions += 1
+        if (new_distance < old_distance) and not self.can_eat_food():
+            self.good_decisions_taken += 1
 
-    def moveUp(self):
-        self.verDirection = "up"
+    def move_up(self):
+        self.ver_direction = "up"
         self.move(0, -1)
 
-    def moveDown(self):
-        self.verDirection = "down"
+    def move_down(self):
+        self.ver_direction = "down"
         self.move(0, 1)
 
-    def moveLeft(self):
-        self.verDirection = "none"
-        self.horDirection = "left"
+    def move_left(self):
+        self.ver_direction = "none"
+        self.hor_direction = "left"
         self.move(-1, 0)
 
-    def moveRight(self):
-        self.verDirection = "none"
-        self.horDirection = "right"
+    def move_right(self):
+        self.ver_direction = "none"
+        self.hor_direction = "right"
         self.move(1, 0)
 
-    def eatFood(self):
-        self.notMoved += 1
-        if self.canEatFood():
-            self.foodEaten += 1
-            self.world.foodHasBeenEaten()
-            self.goodDecisions += 1
+    def eat_food(self):
+        self.didnt_move += 1
+        if self.can_eat_food():
+            self.amount_of_food_eaten += 1
+            self.world.food_has_been_eaten()
+            self.good_decisions_taken += 1
 
-
-
-
-    def canMoveTo(self, x, y):
-        """if x >= self.world.width: return False
-        if x < 0: return False
-        if y >= self.world.height: return False
-        if y < 0: return False"""
+    def can_move_to(self, x, y):
         return True
 
-    def canEatFood(self):
-        return self.world.distanceToFood(self) <= 1
+    def can_eat_food(self):
+        return self.world.distance_to_food(self) <= 1
 
-    def runCommand(self, number):
+    def run_command(self, number):
         self.commands[number]()
 
     def update(self):
-        command = self.brain.decideWhatToDoNow(self.world.food, (self.x, self.y), [self.world.width, self.world.height])
-        self.runCommand(command)
-        self.lastCommand = self.commandsName[command]
-        self.timeUnit += 1
+        command = self.brain.decide_what_to_do_now(self.world.food, (self.x, self.y), [self.world.width, self.world.height])
+        self.run_command(command)
+        self.last_command = self.commandsName[command]
+        self.time_unit += 1
 
-    def isDone(self):
-        return self.timeUnit > TIME_UNIT_PER_GENERATION
+    def is_done(self):
+        return self.time_unit > TIME_UNIT_PER_GENERATION
 
     @staticmethod
     def reproduce(mother, father):

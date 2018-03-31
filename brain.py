@@ -11,27 +11,27 @@ class Brain:
         if network is None:
             network = RandomNetwork()
         self.network = network
-        self.lastInputs = [0, 0]
+        self.last_inputs = [0, 0]
 
     def clone(self):
         clone = Brain(self.network.clone())
         return clone
 
-    def decideWhatToDoNow(self, foodPosition, antPosition, worldSize):
-        relPosX = (foodPosition[0] - antPosition[0]) / worldSize[0]
-        relPosY = (foodPosition[1] - antPosition[1]) / worldSize[1]
+    def decide_what_to_do_now(self, food_position, ant_position, world_size):
+        rel_pos_x = (food_position[0] - ant_position[0]) / world_size[0]
+        rel_pos_y = (food_position[1] - ant_position[1]) / world_size[1]
 
-        self.lastInputs = [relPosX, relPosY]
+        self.last_inputs = [rel_pos_x, rel_pos_y]
 
-        return self.network.predict(mat([self.lastInputs]))
+        return self.network.predict(mat([self.last_inputs]))
 
-    def modifyJustALittle(self):
+    def modify_just_a_little(self):
         for i in range(0, MUTATION_AMOUNT):
-            mutationVariantPer = randint(0, 100)
-            mutationInversePer = randint(0, 100)
+            mutation_variant_per = randint(0, 100)
+            mutation_inverse_per = randint(0, 100)
 
-            if mutationInversePer <= MUTATION_INVERSE_CHANCE:
-                self.network.invertOneRandomWeight()
+            if mutation_inverse_per <= MUTATION_INVERSE_CHANCE:
+                self.network.invert_one_random_weight()
 
-            if mutationVariantPer <= MUTATION_VARIANT_CHANCE:
-                self.network.alterOneRandomWeight()
+            if mutation_variant_per <= MUTATION_VARIANT_CHANCE:
+                self.network.alter_one_random_weight()

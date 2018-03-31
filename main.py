@@ -11,7 +11,7 @@ from constants import *
 world = World(WIDTH, HEIGHT)
 
 # Display world
-worldDisplay = World(WIDTH, HEIGHT)
+world_for_display = World(WIDTH, HEIGHT)
 
 # Generate ants
 generation = Generation(world)
@@ -53,25 +53,25 @@ brownSurf.fill(BROWN)
 darkerBrownSurf = pygame.Surface((CASE_WIDTH, CASE_WIDTH), pygame.SRCALPHA)
 darkerBrownSurf.fill(DARKER_BROWN)
 
-lastHashCode = 0
+last_hash_code = 0
 
 while True:
 
     # display the best ant for the last generation util it doesn't move or its fitness is really bad
-    if not ant or ant.isDone() or (ant.fitness < -20) or (ant.notMoved > 10):
+    if not ant or ant.is_done() or (ant.fitness < -20) or (ant.didnt_move > 10):
         if ant:
-            print ("Reset-ant", ant.isDone(), ant.fitness, ant.notMoved)
-        ant = generation.getLastBestAnt()
+            print ("Reset-ant", ant.is_done(), ant.fitness, ant.didnt_move)
+        ant = generation.get_last_generation_best_ant()
 
         if not ant: continue
         ant.debug = True
-        curHashCode = ant.brain.network.hashCode()
-        hashDiff = curHashCode != lastHashCode
-        lastHashCode = ant.brain.network.hashCode()
+        cur_hash_code = ant.brain.network.hash_code()
+        hash_diff = cur_hash_code != last_hash_code
+        last_hash_code = ant.brain.network.hash_code()
 
-        ant.world = worldDisplay
+        ant.world = world_for_display
         ant.reset()
-        worldDisplay.spawnFood()
+        world_for_display.spawn_food()
 
     for event in pygame.event.get():  # User did something
         if event.type == pygame.QUIT:  # If user clicked close
@@ -92,60 +92,59 @@ while True:
                 screen.blit(darkerBrownSurf, (x * CASE_WIDTH, y * CASE_WIDTH))
 
     # Draw the food
-    screen.blit(chipImage, (worldDisplay.food[0] * CASE_WIDTH, worldDisplay.food[1] * CASE_WIDTH))
+    screen.blit(chipImage, (world_for_display.food[0] * CASE_WIDTH, world_for_display.food[1] * CASE_WIDTH))
 
     # Draw the ant
     img = antImage
-    if ant.horDirection == "left":
+    if ant.hor_direction == "left":
         img = pygame.transform.flip(antImage, True, False)
-    if ant.verDirection == "up":
+    if ant.ver_direction == "up":
         img = pygame.transform.rotate(img, 90)
-    if ant.verDirection == "down":
+    if ant.ver_direction == "down":
         img = pygame.transform.rotate(img, -90)
 
     screen.blit(img, (ant.x * CASE_WIDTH, ant.y * CASE_WIDTH))
-    print((ant.x , ant.y ))
 
     # render text
     label = FONT.render("Fitness: " + str(ant.fitness), 1, (255, 255, 255))
     screen.blit(label, (0, 0))
 
     # render text
-    label = FONT.render("Last command: " + str(ant.lastCommand), 1, (255, 255, 255))
+    label = FONT.render("Last command: " + str(ant.last_command), 1, (255, 255, 255))
     screen.blit(label, (0, 30))
 
     # render text
-    label = FONT.render("Time unit: " + str(ant.timeUnit), 1, (255, 255, 255))
+    label = FONT.render("Time unit: " + str(ant.time_unit), 1, (255, 255, 255))
     screen.blit(label, (0, 60))
 
     # render text
-    label = FONT.render("Generation: " + str(generation.getCount()), 1, (255, 255, 255))
+    label = FONT.render("Generation: " + str(generation.get_count()), 1, (255, 255, 255))
     screen.blit(label, (0, 90))
 
     # render text
-    label = FONT.render("Distance to food: " + str("%.5f" % ant.distanceToFood), 1, (255, 255, 255))
+    label = FONT.render("Distance to food: " + str("%.5f" % ant.distance_to_food), 1, (255, 255, 255))
     screen.blit(label, (0, 120))
 
     # render text
-    label = FONT.render("Mean fitness (20 last): " + str("%.5f" % generation.getLastFitnessMean()), 1, (255, 255, 255))
+    label = FONT.render("Mean fitness (20 last): " + str("%.5f" % generation.calc_fitness_mean()), 1, (255, 255, 255))
     screen.blit(label, (0, 150))
 
     # render text
-    label = FONT.render("Last fitness: " + str("%.5f" % generation.getLastFitness()), 1, (255, 255, 255))
+    label = FONT.render("Last fitness: " + str("%.5f" % generation.get_last_best_fitness()), 1, (255, 255, 255))
     screen.blit(label, (0, 180))
 
     # render text
-    label = FONT.render("Network changed ? :" + str(hashDiff), 1, (255, 255, 255))
+    label = FONT.render("Network changed:" + str(hash_diff), 1, (255, 255, 255))
     screen.blit(label, (0, 210))
 
     # render text
-    label = FONT.render("Last inputs: " + str("%.5f" % ant.brain.lastInputs[0]) + (" - %.5f" % ant.brain.lastInputs[1]),
+    label = FONT.render("Last inputs: " + str("%.5f" % ant.brain.last_inputs[0]) + (" - %.5f" % ant.brain.last_inputs[1]),
                         1, (255, 255, 255))
-    screen.blit(label, (0, 230))
+    screen.blit(label, (0, 240))
 
     # render text
-    label = FONT.render("Different ants: ? :" + str(generation.diffAnts), 1, (255, 255, 255))
-    screen.blit(label, (0, 250))
+    label = FONT.render("Amount of different ants: " + str(generation.amount_diff_ants), 1, (255, 255, 255))
+    screen.blit(label, (0, 270))
 
     ant.brain.network.draw(screen)
 

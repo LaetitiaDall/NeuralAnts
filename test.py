@@ -19,7 +19,7 @@ weigthsLayer2 = mat([[0.94012599, 0.81365859, 0.96482615, 0.28366462, 0.16048148
                      [0.54504325, 0.68236789, 0.70653258, 0.55575627, 0.13546398,
                       0.56770818, 0.66565225]])
 
-net = Network([weigthsLayer1, weigthsLayer2], inputCount=4, outputCount=4, activationCount=6)
+net = Network([weigthsLayer1, weigthsLayer2], input_count=4, output_count=4, activation_count=6)
 
 rnet1 = RandomNetwork()
 rnet2 = RandomNetwork()
