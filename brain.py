@@ -21,7 +21,11 @@ class Brain:
         rel_pos_x = (food_position[0] - ant_position[0]) / world_size[0]
         rel_pos_y = (food_position[1] - ant_position[1]) / world_size[1]
 
-        self.last_inputs = [rel_pos_x, rel_pos_y]
+        offx = -world_size[0] / 2
+        offy = -world_size[0] / 2
+
+        self.last_inputs = [(ant_position[0] - offx) / world_size[0], (ant_position[1] - offy) / world_size[1],
+                            (food_position[0] - offx) / world_size[0], (food_position[1] - offy) / world_size[1]]
 
         return self.network.predict(mat([self.last_inputs]))
 
